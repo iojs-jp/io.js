@@ -2,15 +2,28 @@
 
     Stability: 3 - Stable
 
+<!--
 This module has utilities for URL resolution and parsing.
 Call `require('url')` to use it.
+-->
 
+このモジュールはURLの解決や解析の為のユーティリティを持ちます。
+利用するには `require('url')` を呼び出してください。
+
+<!--
 Parsed URL objects have some or all of the following fields, depending on
 whether or not they exist in the URL string. Any parts that are not in the URL
 string will not be in the parsed object. Examples are shown for the URL
+-->
+
+解析されたURLオブジェクトは、URL文字列の中に存在するかどうかに応じて
+次に示すフィールドをいくつかもしくは全てを持ちます。
+URL文字列に含まれないフィールドは解析結果のオブジェクトに含まれません。
+次のURLで例を示します。
 
 `'http://user:pass@host.com:8080/p/a/t/h?query=string#hash'`
 
+<!--
 * `href`: The full URL that was originally parsed. Both the protocol and host are lowercased.
 
     Example: `'http://user:pass@host.com:8080/p/a/t/h?query=string#hash'`
@@ -62,28 +75,99 @@ string will not be in the parsed object. Examples are shown for the URL
 * `hash`: The 'fragment' portion of the URL including the pound-sign.
 
     Example: `'#hash'`
+-->
 
+* `href`: 解析する前の完全な URL。protocol と host はどちらも小文字化されます。
+
+    例: `'http://user:pass@host.com:8080/p/a/t/h?query=string#hash'`
+
+* `protocol`: リクエストのプロトコル。小文字化されます。
+
+    例: `'http:'`
+
+* `slashes`: コロンの後にスラッシュを必要とするプロトコル。
+
+    例: true または false 。
+
+* `host`: URL の完全で小文字化されたホスト情報。ポート番号を含みます。
+
+    例: `'host.com:8080'`
+
+* `auth`: URL の認証情報。
+
+    例: `'user:pass'`
+
+* `hostname`: ホスト情報の中の小文字化されたホスト名。
+
+    例: `'host.com'`
+
+* `port`: ホスト情報の中のポート番号。
+
+    例: `'8080'`
+
+* `pathname`: URL のパス部分。ホスト情報からクエリまでの間に位置し、
+  最初にスラッシュが存在する場合はそれも含みます。
+
+    例: `'/p/a/t/h'`
+
+* `search`: URL のクエリ文字列。先頭の ? マークも含みます。
+
+    例: `'?query=string'`
+
+* `path`: `pathname` と `search` を連結した文字列。
+
+    例: `'/p/a/t/h?query=string'`
+
+* `query`: クエリの変数部分の文字列、もしくはクエリ文字列を解析した
+  オブジェクト。
+
+    例: `'query=string'` or `{'query':'string'}`
+
+* `hash`: URL の # マークを含む部分。
+
+    例: `'#hash'`
+
+<!--
 The following methods are provided by the URL module:
+-->
+
+以下のメソッドはURLモジュールにより提供されます:
 
 ## url.parse(urlStr[, parseQueryString][, slashesDenoteHost])
 
+<!--
 Take a URL string, and return an object.
+-->
+
+URL文字列を引数に取り、解析結果のオブジェクトを返します。
 
 Pass `true` as the second argument to also parse the query string using the
 `querystring` module. If `true` then the `query` property will always be
 assigned an object, and the `search` property will always be a (possibly
 empty) string.  Defaults to `false`.
 
+<!--
 Pass `true` as the third argument to treat `//foo/bar` as
 `{ host: 'foo', pathname: '/bar' }` rather than
 `{ pathname: '//foo/bar' }`. Defaults to `false`.
+-->
+
+`//foo/bar` を `{ pathname: '//foo/bar' }` ではなく
+`{ host: 'foo', pathname: '/bar' }` としたい場合は、
+第 3 引数に `true` を渡してください。
+デフォルトは `false` です。
 
 ## url.format(urlObj)
 
+<!--
 Take a parsed URL object, and return a formatted URL string.
+-->
+
+URL オブジェクトを引数に取り、フォーマットした URL 文字列を返します。
 
 Here's how the formatting process works:
 
+<!--
 * `href` will be ignored.
 * `protocol` is treated the same with or without the trailing `:` (colon).
   * The protocols `http`, `https`, `ftp`, `gopher`, `file` will be
@@ -102,11 +186,35 @@ Here's how the formatting process works:
 * `search` will be used in place of `query`.
   * It is treated the same with or without the leading `?` (question mark).
 * `hash` is treated the same with or without the leading `#` (pound sign, anchor).
+-->
+
+* `href` は無視されます。
+* `protocol` の末尾に `:` (コロン) があってもなくても同じように扱われます。
+  * `http`、`https`、`ftp`、`gopher`、`file` は末尾に `://`
+    (コロン、スラッシュ、スラッシュ) が付けられます。
+  * `mailto`、`xmpp`、`aim`、`sftp`、`foo` など、その他のプロトコルは末尾に `:`
+    (コロン) が付けられます。
+* `slashes` は `://` (コロン、スラッシュ、スラッシュ) が必要なプロトコルの場合は `true` になります。
+ * `mongodb://localhost:8000/` のような上記に挙げていないスラッシュが必要なプロトコルの場合だけ
+   設定する必要があります。
+* `auth` が与えられると使われます。
+* `hostname` は `host` が与えられなかった場合だけ使われます。
+* `port` は `host` が与えられなかった場合だけ使われます。
+* `host` は `hostname`、`port` の位置で使われます。
+* `pathname` の先頭に `/` (スラッシュ) があってもなくても同じように扱われます。
+* `query` (文字列ではなくオブジェクトです; `querystring` を参照してください) は `search` が与えられなかった場合だけ使われます。
+* `search` は `query` の位置で使われます。
+  * `search` の先頭に `?` (クエスチョンマーク) があってもなくても同じように扱われます。
+* `hash` の先頭に `#` (シャープ, アンカー) があってもなくても同じように扱われます。
 
 ## url.resolve(from, to)
 
+<!--
 Take a base URL, and a href URL, and resolve them as a browser would for
 an anchor tag.  Examples:
+-->
+
+ベースとなる URL と相対 URL を引数に取り、ブラウザがアンカータグに対して行うのと同様に URL を解決します。例:
 
     url.resolve('/one/two/three', 'four')         // '/one/two/four'
     url.resolve('http://example.com/', '/one')    // 'http://example.com/one'
