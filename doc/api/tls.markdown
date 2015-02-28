@@ -70,7 +70,7 @@ Perfect Forward Secrecyを実現するためには、ディフィー・ヘルマ
 To create .pfx or .p12, do this:
 -->
 
-.pfx もしくは.p12ファイルを生成するには以下のようにします
+.pfx もしくは.p12を生成するには次のようにします:
 
     openssl pkcs12 -export -in agent5-cert.pem -inkey agent5-key.pem \
         -certfile ca-cert.pem -out agent5.pfx
@@ -85,6 +85,7 @@ To create .pfx or .p12, do this:
 
 <!-- type=misc -->
 
+T<!--
 The TLS protocol lets the client renegotiate certain aspects of the TLS session.
 Unfortunately, session renegotiation requires a disproportional amount of
 server-side resources, which makes it a potential vector for denial-of-service
@@ -104,19 +105,50 @@ Don't change the defaults unless you know what you are doing.
 To test your server, connect to it with `openssl s_client -connect address:port`
 and tap `R<CR>` (that's the letter `R` followed by a carriage return) a few
 times.
+-->
+
+TLS プロトコルでは、クライアントに TLS セッションの再ネゴシエーションを
+許します。
+
+残念ながら、セッション再ネゴシエーション要求はサーバサイドに過度なリソースを
+要求するため、それは潜在的なサーバ強制停止攻撃となります。
+
+これを軽減するために、再ネゴシエーションは 10 分当たり 3 回までに
+制限されています。この制限を超えると、[tls.TLSSocket][]
+のインスタンス上でエラーが生成されます。この制限は変更可能です:
+
+  - `tls.CLIENT_RENEG_LIMIT`: 再ネゴシエーションの上限、デフォルトは 3 です。
+
+  - `tls.CLIENT_RENEG_WINDOW`: 秒単位の再ネゴシエーションウィンドウ、
+    デフォルトは 10 分です。
+
+あなたが何をしようとしているか十分に理解していない限り、
+デフォルトを変更しないでください。
+
+サーバをテストするために、`openssl s_client -connect address:port`
+および `R<CR>` (`R` キーの後に続けてリターンキー) を
+数回繰り返します。
+
 
 
 ## NPN and SNI
 
 <!-- type=misc -->
 
+<!--
 NPN (Next Protocol Negotiation) and SNI (Server Name Indication) are TLS
 handshake extensions allowing you:
 
   * NPN - to use one TLS server for multiple protocols (HTTP, SPDY)
   * SNI - to use one TLS server for multiple hostnames with different SSL
     certificates.
+-->
 
+NPN (Next Protocol Negotitation) と SNI (Server Name Indication) は
+TLS の拡張で、以下を可能にします。
+
+  * NPN - 一つの TLS サーバで複数のプロトコル (HTTP、SPDY) を使用。
+  * SNI - 一つの TLS サーバでホスト名の異なる複数の証明書を使用。
 
 ## Perfect Forward Secrecy
 
@@ -145,9 +177,17 @@ is expensive.
 
 ## tls.getCiphers()
 
+<!--
 Returns an array with the names of the supported SSL ciphers.
+-->
 
+サポートされている SSL 暗号名の配列を返します。
+
+<!--
 Example:
+-->
+
+例:
 
     var ciphers = tls.getCiphers();
     console.log(ciphers); // ['AES128-SHA', 'AES256-SHA', ...]
@@ -155,9 +195,16 @@ Example:
 
 ## tls.createServer(options[, secureConnectionListener])
 
+<!--
 Creates a new [tls.Server][].  The `connectionListener` argument is
 automatically set as a listener for the [secureConnection][] event.  The
 `options` object has these possibilities:
+-->
+
+新しい [tls.Server][] を作成します。
+`connectionListener` は [secureConnection][] イベントのリスナとして
+自動的に登録されます。
+`options` は以下を持つことができます:
 
   - `pfx`: A string or `Buffer` containing the private key, certificate and
     CA certs of the server in PFX or PKCS12 format. (Mutually exclusive with
@@ -253,7 +300,11 @@ automatically set as a listener for the [secureConnection][] event.  The
     SSL version 3. The possible values depend on your installation of
     OpenSSL and are defined in the constant [SSL_METHODS][].
 
+<!--
 Here is a simple example echo server:
+-->
+
+これはシンプルはエコーサーバの例です:
 
     var tls = require('tls');
     var fs = require('fs');
@@ -280,7 +331,11 @@ Here is a simple example echo server:
       console.log('server bound');
     });
 
+<!--
 Or
+-->
+
+あるいは:
 
     var tls = require('tls');
     var fs = require('fs');
@@ -303,7 +358,12 @@ Or
     server.listen(8000, function() {
       console.log('server bound');
     });
+
+<!--
 You can test this server by connecting to it with `openssl s_client`:
+-->
+
+`openssl s_client` を使用してこのサーバに接続するテストを行うことができます。
 
 
     openssl s_client -connect 127.0.0.1:8000
@@ -312,10 +372,18 @@ You can test this server by connecting to it with `openssl s_client`:
 ## tls.connect(options[, callback])
 ## tls.connect(port[, host][, options][, callback])
 
+<!--
 Creates a new client connection to the given `port` and `host` (old API) or
 `options.port` and `options.host`. (If `host` is omitted, it defaults to
 `localhost`.) `options` should be an object which specifies:
+-->
 
+与えられた `port` と `host` (旧 API) または `options.port` と `options.host`
+で新しいクライアントコネクションを作成します
+(`host` が省略された場合、デフォルトは `localhost` です)。
+`options` は以下を指定したオブジェクトです:
+
+<!--
   - `host`: Host the client should connect to
 
   - `port`: Port the client should connect to
@@ -359,8 +427,54 @@ Creates a new client connection to the given `port` and `host` (old API) or
   - `secureProtocol`: The SSL method to use, e.g. `SSLv3_method` to force
     SSL version 3. The possible values depend on your installation of
     OpenSSL and are defined in the constant [SSL_METHODS][].
+-->
 
-  - `session`: A `Buffer` instance, containing TLS session.
+  - `host`: クライアントが接続するホスト。
+
+  - `port`: クライアントが接続するポート番号。
+
+  - `socket`: 新しいソケットを生成するのではなく、与えられたソケット上で
+    セキュアな接続を確立します。
+    このオプションが指定された場合、`host` および `port` は無視されます。
+
+  - `path`: 指定された `path`とのunixソケットを作成します。
+    このオプションが指定された場合、`host` および `port` は無視されます。
+
+  - `pfx` : PFX または PKCS12 でエンコードされた秘密鍵、証明書、
+    およびサーバに対する CA の証明書を含む文字列またはバッファ。
+
+  - `key`: PEM フォーマットによるサーバの秘密鍵を持つ文字列または
+    `Buffer` です。 (配列を渡すこともできます)
+
+  - `passphrase`: 秘密鍵または pfx のパスフレーズを表す文字列です。
+
+  - `cert`: PEM フォーマットによる証明書の鍵を持つ文字列または `Buffer` です。(配列を渡すこともできます)
+
+  - `ca`: PEMフォーマットによる信頼できる証明書の文字列または
+    `Buffer` の配列です。
+    省略された場合、ベリサインなどのよく知られた「ルート」認証局が使われます。
+    これらはコネクションの認証に使われます。
+
+ - `ciphers`: A string describing the ciphers to use or exclude, separated by
+   `:`. Uses the same default cipher suite as `tls.createServer`.
+
+  - `rejectUnauthorized`: `true` の場合、サーバ証明書は提供された認証局の
+    リストによって検証されます。
+    認証されなかった場合は `'error'` イベントが生成されます。
+    認証は HTTP リクエストが送信される *前* にコネクションレベルで行われます。
+    `err.code` はOpenSSLのエラーコードを含みます。 デフォルトは true です。
+
+  - `NPNProtocols`: サポートする NPN プロトコルの文字列または `Buffer`
+    の配列です。
+    `Buffer` は次のような形式です: `0x05hello0x5world`
+    最初のバイトは次のプロトコル名の長さです
+    (通常、配列を渡す方がシンプルです: `['hello', 'world']`)。
+
+  - `servername`: TLS 拡張である SNI (Server Name Indication) のサーバ名です。
+
+  - `secureProtocol`: 使用する SSL 方式、たとえば `SSLv3_method` は
+    SSL バージョン 3 を強制します。可能な値はインストールされている OpenSSL
+    と、その定数 [SSL_METHODS][] の定義に依存します。
 
 The `callback` parameter will be added as a listener for the
 ['secureConnect'][] event.
