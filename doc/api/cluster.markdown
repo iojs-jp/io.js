@@ -525,7 +525,7 @@ the settings will be present in `cluster.settings`.
 Note that:
 -->
 
-注意:
+注意事項:
 
 <!--
 * any settings changes only affect future calls to `.fork()` and have no
@@ -538,8 +538,8 @@ Note that:
 
 * すべての設定変更は将来の `.fork()` の呼び出し時にのみ影響を与え、すでに
 実行されているワーカには影響を与えません
-* worker の属性 *のみ* は `.setupMaster()` 経由で設定できず、`.fork()`
-に `env` を渡します
+* ワーカの属性は `.setupMaster()` 経由で設定できず、`.fork()`に渡すことのできる
+`env` *だけ* で設定できます。
 * 上記のデフォルトは最初の呼び出しだけ適用され、以降の呼び出しのデフォルト
 は `cluster.setupMaster()` が呼ばれた時の値です
 
