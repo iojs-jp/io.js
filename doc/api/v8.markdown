@@ -33,7 +33,9 @@ Set additional V8 command line flags.  Use with care; changing settings
 after the VM has started may result in unpredictable behavior, including
 crashes and data loss.  Or it may simply do nothing.
 -->
-V8のコマンドライン引数を指定します。 注意の元に使用してください。VMの起動後の設定の変更はクラッシュやデータの損失を含む予想しない振る舞いを引き起こす可能性がありますし、単になにも起こらない可能性もあります。
+V8のコマンドライン引数を指定します。
+
+この機能は慎重に使用してください。クラッシュやデータの破損のような予期せぬ動作を引き起こす可能性があります。また、単に何も起きない可能性もあります。
 
 <!--
 The V8 options available for a version of io.js may be determined by running
@@ -41,7 +43,7 @@ The V8 options available for a version of io.js may be determined by running
 and their effects is available
 [here](https://github.com/thlorenz/v8-flags/blob/master/flags-0.11.md).
 -->
-使用できるV8のオプションは `iojs --v8-options` で知ることが出来ます。 非公式ではありますが、コミュニティがメンテナンスしているオプションとその効果のリストもあります。[here](https://github.com/thlorenz/v8-flags/blob/master/flags-0.11.md).
+使用できるV8のオプションは `iojs --v8-options` と実行することで知ることが出来ます。 非公式ではありますが、コミュニティがメンテナンスしているオプションとその効果のリストもあります。[here](https://github.com/thlorenz/v8-flags/blob/master/flags-0.11.md).
 
 Usage:
 
