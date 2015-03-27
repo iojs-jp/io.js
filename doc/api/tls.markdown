@@ -1,34 +1,76 @@
 # TLS (SSL)
 
-    Stability: 3 - Stable
+    Stability: 2 - Stable
 
+<!--
 Use `require('tls')` to access this module.
+-->
 
+`require('tls')` でこのモジュールにアクセスします。
+
+<!--
 The `tls` module uses OpenSSL to provide Transport Layer Security and/or
 Secure Socket Layer: encrypted stream communication.
+-->
 
+`tls` モジュールは OpenSSL を使用することで Transport Layer Security および
+Secure Socket Layer: 暗号化されたストリーム通信を提供します。
+
+<!--
 TLS/SSL is a public/private key infrastructure. Each client and each
-server must have a private key. A private key is created like this:
+server must have a private key. A private key is created like this
+-->
+
+TLS/SSL は公開／秘密鍵を基礎とします。
+どのクライアントとサーバも秘密鍵が必要です。
+秘密鍵は次のように作成します
 
     openssl genrsa -out ryans-key.pem 2048
 
-All servers and some clients need to have a certificate. Certificates are public
+<!--
+All severs and some clients need to have a certificate. Certificates are public
 keys signed by a Certificate Authority or self-signed. The first step to
 getting a certificate is to create a "Certificate Signing Request" (CSR)
 file. This is done with:
+-->
+
+全てのサーバと一部のクライアントは証明書を必要とします。
+証明書は認証局の公開鍵または自身によって署名されます。
+証明書を作成する最初のステップは「証明書署名要求 (CSR)」ファイルです。
+次のようにします:
+
 
     openssl req -new -sha256 -key ryans-key.pem -out ryans-csr.pem
 
+<!--
 To create a self-signed certificate with the CSR, do this:
+-->
+
+CSR から自己署名証明書を作成するには次のようにします:
 
     openssl x509 -req -in ryans-csr.pem -signkey ryans-key.pem -out ryans-cert.pem
 
+<!--
 Alternatively you can send the CSR to a Certificate Authority for signing.
+-->
 
-(TODO: docs on creating a CA, for now interested users should just look at
-`test/fixtures/keys/Makefile` in the Node source code)
+他に CSR を認証局に送って署名してもらうこともできます。
 
+
+<!--
+For Perfect Forward Secrecy, it is required to generate Diffie-Hellman
+parameters:
+-->
+
+Perfect Forward Secrecyを実現するためには、ディフィー・ヘルマン パラメータを生成する必要があります。
+
+    openssl dhparam -outform PEM -out dhparam.pem 2048
+
+<!--
 To create .pfx or .p12, do this:
+-->
+
+.pfx もしくは.p12を生成するには次のようにします:
 
     openssl pkcs12 -export -in agent5-cert.pem -inkey agent5-key.pem \
         -certfile ca-cert.pem -out agent5.pfx
@@ -43,6 +85,7 @@ To create .pfx or .p12, do this:
 
 <!-- type=misc -->
 
+T<!--
 The TLS protocol lets the client renegotiate certain aspects of the TLS session.
 Unfortunately, session renegotiation requires a disproportional amount of
 server-side resources, which makes it a potential vector for denial-of-service
@@ -62,19 +105,50 @@ Don't change the defaults unless you know what you are doing.
 To test your server, connect to it with `openssl s_client -connect address:port`
 and tap `R<CR>` (that's the letter `R` followed by a carriage return) a few
 times.
+-->
+
+TLS プロトコルでは、クライアントに TLS セッションの再ネゴシエーションを
+許します。
+
+残念ながら、セッション再ネゴシエーション要求はサーバサイドに過度なリソースを
+要求するため、それは潜在的なサーバ強制停止攻撃となります。
+
+これを軽減するために、再ネゴシエーションは 10 分当たり 3 回までに
+制限されています。この制限を超えると、[tls.TLSSocket][]
+のインスタンス上でエラーが生成されます。この制限は変更可能です:
+
+  - `tls.CLIENT_RENEG_LIMIT`: 再ネゴシエーションの上限、デフォルトは 3 です。
+
+  - `tls.CLIENT_RENEG_WINDOW`: 秒単位の再ネゴシエーションウィンドウ、
+    デフォルトは 10 分です。
+
+あなたが何をしようとしているか十分に理解していない限り、
+デフォルトを変更しないでください。
+
+サーバをテストするために、`openssl s_client -connect address:port`
+および `R<CR>` (`R` キーの後に続けてリターンキー) を
+数回繰り返します。
+
 
 
 ## NPN and SNI
 
 <!-- type=misc -->
 
+<!--
 NPN (Next Protocol Negotiation) and SNI (Server Name Indication) are TLS
 handshake extensions allowing you:
 
   * NPN - to use one TLS server for multiple protocols (HTTP, SPDY)
   * SNI - to use one TLS server for multiple hostnames with different SSL
     certificates.
+-->
 
+NPN (Next Protocol Negotitation) と SNI (Server Name Indication) は
+TLS の拡張で、以下を可能にします。
+
+  * NPN - 一つの TLS サーバで複数のプロトコル (HTTP、SPDY) を使用。
+  * SNI - 一つの TLS サーバでホスト名の異なる複数の証明書を使用。
 
 ## Perfect Forward Secrecy
 
@@ -103,9 +177,17 @@ is expensive.
 
 ## tls.getCiphers()
 
+<!--
 Returns an array with the names of the supported SSL ciphers.
+-->
 
+サポートされている SSL 暗号名の配列を返します。
+
+<!--
 Example:
+-->
+
+例:
 
     var ciphers = tls.getCiphers();
     console.log(ciphers); // ['AES128-SHA', 'AES256-SHA', ...]
@@ -113,9 +195,16 @@ Example:
 
 ## tls.createServer(options[, secureConnectionListener])
 
+<!--
 Creates a new [tls.Server][].  The `connectionListener` argument is
 automatically set as a listener for the [secureConnection][] event.  The
 `options` object has these possibilities:
+-->
+
+新しい [tls.Server][] を作成します。
+`connectionListener` は [secureConnection][] イベントのリスナとして
+自動的に登録されます。
+`options` は以下を持つことができます:
 
   - `pfx`: A string or `Buffer` containing the private key, certificate and
     CA certs of the server in PFX or PKCS12 format. (Mutually exclusive with
@@ -136,40 +225,30 @@ automatically set as a listener for the [secureConnection][] event.  The
   - `crl` : Either a string or list of strings of PEM encoded CRLs (Certificate
     Revocation List)
 
-  - `ciphers`: A string describing the ciphers to use or exclude.
+  - `ciphers`: A string describing the ciphers to use or exclude, seperated by
+    `:`. The default cipher suite is:
 
-    To mitigate [BEAST attacks] it is recommended that you use this option in
-    conjunction with the `honorCipherOrder` option described below to
-    prioritize the non-CBC cipher.
+        ECDHE-RSA-AES256-SHA384:DHE-RSA-AES256-SHA384:ECDHE-RSA-AES256-SHA256:
+        DHE-RSA-AES256-SHA256:ECDHE-RSA-AES128-SHA256:DHE-RSA-AES128-SHA256:
+        HIGH:!aNULL:!eNULL:!EXPORT:!DES:!RC4:!MD5:!PSK:!SRP:!CAMELLIA
 
-    Defaults to
-    `ECDHE-RSA-AES128-SHA256:DHE-RSA-AES128-SHA256:AES128-GCM-SHA256:RC4:HIGH:!MD5:!aNULL`.
-    Consult the [OpenSSL cipher list format documentation] for details
-    on the format.
-
-    `ECDHE-RSA-AES128-SHA256`, `DHE-RSA-AES128-SHA256` and
-    `AES128-GCM-SHA256` are TLS v1.2 ciphers and used when io.js is
-    linked against OpenSSL 1.0.1 or newer, such as the bundled version
-    of OpenSSL.  Note that it is still possible for a TLS v1.2 client
-    to negotiate a weaker cipher unless `honorCipherOrder` is enabled.
-
-    `RC4` is used as a fallback for clients that speak on older version of
-    the TLS protocol.  `RC4` has in recent years come under suspicion and
-    should be considered compromised for anything that is truly sensitive.
-    It is speculated that state-level actors possess the ability to break it.
-
-    **NOTE**: Previous revisions of this section suggested `AES256-SHA` as an
-    acceptable cipher. Unfortunately, `AES256-SHA` is a CBC cipher and therefore
-    susceptible to [BEAST attacks]. Do *not* use it.
+    The default cipher suite prefers ECDHE and DHE ciphers for Perfect Forward
+    secrecy, while offering *some* backward compatibiltity. Old clients which
+    rely on insecure and deprecated RC4 or DES-based ciphers (like Internet
+    Explorer 6) aren't able to complete the handshake with the default
+    configuration. If you absolutely must support these clients, the
+    [TLS recommendations] may offer a compatible cipher suite. For more details
+    on the format, see the [OpenSSL cipher list format documentation].
 
   - `ecdhCurve`: A string describing a named curve to use for ECDH key agreement
     or false to disable ECDH.
 
     Defaults to `prime256v1`. Consult [RFC 4492] for more details.
 
-  - `dhparam`: DH parameter file to use for DHE key agreement. Use
-    `openssl dhparam` command to create it. If the file is invalid to
-    load, it is silently discarded.
+  - `dhparam`: A string or `Buffer` containing Diffie Hellman parameters,
+    required for Perfect Forward Secrecy. Use `openssl dhparam` to create it.
+    If omitted or invalid, it is silently discarded and DHE ciphers won't be
+    available.
 
   - `handshakeTimeout`: Abort the connection if the SSL/TLS handshake does not
     finish in this many milliseconds. The default is 120 seconds.
@@ -178,11 +257,7 @@ automatically set as a listener for the [secureConnection][] event.  The
     times out.
 
   - `honorCipherOrder` : When choosing a cipher, use the server's preferences
-    instead of the client preferences.
-
-    Although, this option is disabled by default, it is *recommended* that you
-    use this option in conjunction with the `ciphers` option to mitigate
-    BEAST attacks.
+    instead of the client preferences. Default: `true`.
 
   - `requestCert`: If `true` the server will request a certificate from
     clients that connect and attempt to verify that certificate. Default:
@@ -225,7 +300,11 @@ automatically set as a listener for the [secureConnection][] event.  The
     SSL version 3. The possible values depend on your installation of
     OpenSSL and are defined in the constant [SSL_METHODS][].
 
+<!--
 Here is a simple example echo server:
+-->
+
+これはシンプルはエコーサーバの例です:
 
     var tls = require('tls');
     var fs = require('fs');
@@ -252,7 +331,11 @@ Here is a simple example echo server:
       console.log('server bound');
     });
 
+<!--
 Or
+-->
+
+あるいは:
 
     var tls = require('tls');
     var fs = require('fs');
@@ -275,7 +358,12 @@ Or
     server.listen(8000, function() {
       console.log('server bound');
     });
+
+<!--
 You can test this server by connecting to it with `openssl s_client`:
+-->
+
+`openssl s_client` を使用してこのサーバに接続するテストを行うことができます。
 
 
     openssl s_client -connect 127.0.0.1:8000
@@ -284,10 +372,18 @@ You can test this server by connecting to it with `openssl s_client`:
 ## tls.connect(options[, callback])
 ## tls.connect(port[, host][, options][, callback])
 
+<!--
 Creates a new client connection to the given `port` and `host` (old API) or
 `options.port` and `options.host`. (If `host` is omitted, it defaults to
 `localhost`.) `options` should be an object which specifies:
+-->
 
+与えられた `port` と `host` (旧 API) または `options.port` と `options.host`
+で新しいクライアントコネクションを作成します
+(`host` が省略された場合、デフォルトは `localhost` です)。
+`options` は以下を指定したオブジェクトです:
+
+<!--
   - `host`: Host the client should connect to
 
   - `port`: Port the client should connect to
@@ -314,6 +410,9 @@ Creates a new client connection to the given `port` and `host` (old API) or
     format. If this is omitted several well known "root" CAs will be used,
     like VeriSign. These are used to authorize connections.
 
+  - `ciphers`: A string describing the ciphers to use or exclude, separated by
+   `:`. Uses the same default cipher suite as `tls.createServer`.
+
   - `rejectUnauthorized`: If `true`, the server certificate is verified against
     the list of supplied CAs. An `'error'` event is emitted if verification
     fails; `err.code` contains the OpenSSL error code. Default: `true`.
@@ -328,8 +427,54 @@ Creates a new client connection to the given `port` and `host` (old API) or
   - `secureProtocol`: The SSL method to use, e.g. `SSLv3_method` to force
     SSL version 3. The possible values depend on your installation of
     OpenSSL and are defined in the constant [SSL_METHODS][].
+-->
 
-  - `session`: A `Buffer` instance, containing TLS session.
+  - `host`: クライアントが接続するホスト。
+
+  - `port`: クライアントが接続するポート番号。
+
+  - `socket`: 新しいソケットを生成するのではなく、与えられたソケット上で
+    セキュアな接続を確立します。
+    このオプションが指定された場合、`host` および `port` は無視されます。
+
+  - `path`: 指定された `path`とのunixソケットを作成します。
+    このオプションが指定された場合、`host` および `port` は無視されます。
+
+  - `pfx` : PFX または PKCS12 でエンコードされた秘密鍵、証明書、
+    およびサーバに対する CA の証明書を含む文字列またはバッファ。
+
+  - `key`: PEM フォーマットによるサーバの秘密鍵を持つ文字列または
+    `Buffer` です。 (配列を渡すこともできます)
+
+  - `passphrase`: 秘密鍵または pfx のパスフレーズを表す文字列です。
+
+  - `cert`: PEM フォーマットによる証明書の鍵を持つ文字列または `Buffer` です。(配列を渡すこともできます)
+
+  - `ca`: PEMフォーマットによる信頼できる証明書の文字列または
+    `Buffer` の配列です。
+    省略された場合、ベリサインなどのよく知られた「ルート」認証局が使われます。
+    これらはコネクションの認証に使われます。
+
+ - `ciphers`: A string describing the ciphers to use or exclude, separated by
+   `:`. Uses the same default cipher suite as `tls.createServer`.
+
+  - `rejectUnauthorized`: `true` の場合、サーバ証明書は提供された認証局の
+    リストによって検証されます。
+    認証されなかった場合は `'error'` イベントが生成されます。
+    認証は HTTP リクエストが送信される *前* にコネクションレベルで行われます。
+    `err.code` はOpenSSLのエラーコードを含みます。 デフォルトは true です。
+
+  - `NPNProtocols`: サポートする NPN プロトコルの文字列または `Buffer`
+    の配列です。
+    `Buffer` は次のような形式です: `0x05hello0x5world`
+    最初のバイトは次のプロトコル名の長さです
+    (通常、配列を渡す方がシンプルです: `['hello', 'world']`)。
+
+  - `servername`: TLS 拡張である SNI (Server Name Indication) のサーバ名です。
+
+  - `secureProtocol`: 使用する SSL 方式、たとえば `SSLv3_method` は
+    SSL バージョン 3 を強制します。可能な値はインストールされている OpenSSL
+    と、その定数 [SSL_METHODS][] の定義に依存します。
 
 The `callback` parameter will be added as a listener for the
 ['secureConnect'][] event.
@@ -812,3 +957,4 @@ The numeric representation of the local port.
 [ECDHE]: https://en.wikipedia.org/wiki/Elliptic_curve_Diffie%E2%80%93Hellman
 [asn1.js]: http://npmjs.org/package/asn1.js
 [OCSP request]: http://en.wikipedia.org/wiki/OCSP_stapling
+[TLS recommendations]: https://wiki.mozilla.org/Security/Server_Side_TLS
