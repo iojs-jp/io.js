@@ -99,7 +99,7 @@ bind to the "all interfaces" address on a random port (it does the right thing
 for both `udp4` and `udp6` sockets). You can then retrieve the address and port
 with `socket.address().address` and `socket.address().port`.
 -->
- `options`オブジェクトは`udp4` か `udp6` のいずれかの `type` フィールドを含む必要があります。そして、boolean値である `reuseAddr` フィールドを任意で含みます。
+`options` オブジェクトは `udp4` か `udp6` のいずれかの `type` フィールドを含む必要があります。そして、boolean値である `reuseAddr` フィールドを任意で含みます。
  
 `reuseAddr` が true の時には、 `socket.bind()` は他のプロセスが既にソケットをバインドしていたとしても、アドレスを再利用します。 `reuseAddr` の初期値は `false` です。
 
