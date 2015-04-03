@@ -167,7 +167,7 @@ on line 1
 * `setBreakpoint(line)`, `sb(line)` - 指定した行にブレークポイントを設定します。
 * `setBreakpoint('fn()')`, `sb(...)` - 指定した関数の先頭行にブレークポイントを設定します
 * `setBreakpoint('script.js', 1)`, `sb(...)` - 指定したスクリプトファイルの指定した行にブレークポイントを設定します。
-* `clearBreakpoint('script.js', 1)`, `cb(...)` - script.jsの1行目のブレークポイントを削除します。
+* `clearBreakpoint('script.js', 1)`, `cb(...)` - script.js の1行目のブレークポイントを削除します。
 
 <!--
 It is also possible to set a breakpoint in a file (module) that
